@@ -1,0 +1,24 @@
+.graph {
+  display: block;
+  /* background-color: thistle; */
+}
+
+.drawArea {
+  fill:aquamarine;
+}
+
+.graph-wrapper {
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.zoomBtnGroup {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+.zoomBtnGroup > .btn {
+}
