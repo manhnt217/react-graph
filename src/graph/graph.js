@@ -8,7 +8,7 @@ const Graph = ({ size, children }) => {
   const svgEl = React.useRef(undefined);
   const graphWrapperEl = React.useRef(undefined);
   const [graphHeight, updateGraphHeight] = React.useState(1000.0);
-  const [[dragging, dragX, dragY], updateDrag] = React.useState([false, 0, 0]);
+  const [[dragging, [mouseDownX, mouseDownY], [startDragViewBoxX, startDragViewBoxY]], updateDrag] = React.useState([false, [0, 0], [0, 0]]);
   const [[viewBoxX, viewBoxY, zoomLevel], setZoom] = React.useState([0.0, 0.0, 100.0]);
 
   React.useEffect(() => {
@@ -40,13 +40,12 @@ const Graph = ({ size, children }) => {
     return [newVX, newVY, newZoomLevel];
   });
 
-  const handleMouseDown = (e) => updateDrag([true, ...getMousePos(e)]);
-  const handleMouseUp = () => updateDrag([false, dragX, dragY]);
+  const handleMouseDown = (e) => updateDrag([true, [...getMousePos(e)], [viewBoxX, viewBoxY]]);
+  const handleMouseUp = () => updateDrag([false, [0, 0], [0, 0]]);
   const handleMouseMove = (e) => {
     const [currentMouseX, currentMouseY] = getMousePos(e);
     if (dragging) {
-      setZoom(([prevViewBoxX, prevViewBoxY, prevZoomLevel]) => [prevViewBoxX + dragX - currentMouseX, prevViewBoxY + dragY - currentMouseY, prevZoomLevel])
-      updateDrag([true, currentMouseX, currentMouseY]);
+      setZoom([startDragViewBoxX + mouseDownX - currentMouseX, startDragViewBoxY + mouseDownY - currentMouseY, zoomLevel])
     }
   }
 
