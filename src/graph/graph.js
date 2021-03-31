@@ -8,9 +8,8 @@ const Graph = ({ size, children }) => {
   const svgEl = React.useRef(undefined);
   const graphWrapperEl = React.useRef(undefined);
   const [graphHeight, updateGraphHeight] = React.useState(1000.0);
-  const [zoomLevel, updateZoomLevel] = React.useState(100.0);
   const [[dragging, dragX, dragY], updateDrag] = React.useState([false, 0, 0]);
-  const [[viewBoxX, viewBoxY], updateViewBox] = React.useState([0.0, 0.0]);
+  const [[viewBoxX, viewBoxY, zoomLevel], setZoom] = React.useState([0.0, 0.0, 100.0]);
 
   React.useEffect(() => {
     updateGraphHeight(svgEl.current.getBoundingClientRect().width)
@@ -31,23 +30,22 @@ const Graph = ({ size, children }) => {
     handleZoom(mouseX, mouseY, e.deltaY * 0.001)
   }
 
-  const handleZoom = (mouseX, mouseY, multiplicator) => {
-    const z = zoomLevel * (2 ** multiplicator)
+  const handleZoom = (mouseX, mouseY, multiplicator) => setZoom(([prevViewBoxX, prevViewBoxY, prevZoomLevel]) => {
+    const z = prevZoomLevel * (2 ** multiplicator)
     const newZoomLevel = z < minZoomLevel ? minZoomLevel : z
-    const ratio = newZoomLevel * 1.0 / zoomLevel;
-    const newVX = viewBoxX - mouseX * (ratio - 1);
-    const newVY = viewBoxY - mouseY * (ratio - 1);
+    const ratio = newZoomLevel * 1.0 / prevZoomLevel;
+    const newVX = prevViewBoxX - mouseX * (ratio - 1);
+    const newVY = prevViewBoxY - mouseY * (ratio - 1);
 
-    updateViewBox([newVX, newVY])
-    updateZoomLevel(newZoomLevel);
-  }
+    return [newVX, newVY, newZoomLevel];
+  });
 
   const handleMouseDown = (e) => updateDrag([true, ...getMousePos(e)]);
   const handleMouseUp = () => updateDrag([false, dragX, dragY]);
   const handleMouseMove = (e) => {
     const [currentMouseX, currentMouseY] = getMousePos(e);
     if (dragging) {
-      updateViewBox([viewBoxX + dragX - currentMouseX, viewBoxY + dragY - currentMouseY])
+      setZoom(([prevViewBoxX, prevViewBoxY, prevZoomLevel]) => [prevViewBoxX + dragX - currentMouseX, prevViewBoxY + dragY - currentMouseY, prevZoomLevel])
       updateDrag([true, currentMouseX, currentMouseY]);
     }
   }
